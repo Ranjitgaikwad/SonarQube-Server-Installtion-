@@ -57,12 +57,12 @@
 
 # Option 2: Using visudo (Advanced)
 
- sudo visudo
+    sudo visudo
 
 
 # Add:
 
-sonarqube ALL=(ALL) NOPASSWD: ALL
+   sonarqube ALL=(ALL) NOPASSWD: ALL
 
 🟢 Step 5: Download SonarQube Community Edition
 
@@ -108,8 +108,8 @@ sonarqube ALL=(ALL) NOPASSWD: ALL
 # SonarQube requires higher file descriptors and virtual memory.
 
 # Edit sysctl config
-   sudo vi /etc/sysctl.conf
 
+   sudo vi /etc/sysctl.conf
 
 # Add:
 
