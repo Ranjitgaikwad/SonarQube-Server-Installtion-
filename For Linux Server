@@ -1,0 +1,190 @@
+🚀 SonarQube Community Edition Installation Guide
+Amazon Linux / RHEL / CentOS
+📌 Important Notes
+1. Set passwords for all users (root, ec2-user, sonarqube)
+   Command: sudo passwd <username>
+
+2. SonarQube runs on port: 9000
+
+3. Default Login:
+   Username: admin
+   Password: admin
+
+🧰 Prerequisites
+
+EC2 instance with minimum t3.medium (2 CPU, 4 GB RAM)
+
+Amazon Linux 2 / RHEL / CentOS
+
+Root or sudo access
+
+Internet connectivity
+
+🟢 Step 1: Update the System Packages
+
+Purpose:
+Ensures all system packages are up-to-date and avoids dependency issues.
+
+sudo yum update -y
+
+🟢 Step 2: Install Java 17 (Required for SonarQube)
+
+Purpose:
+SonarQube requires Java 17 to run properly.
+
+sudo yum install java-17-amazon-corretto-devel -y
+
+✅ Verify Java Installation
+java -version
+
+🟢 Step 3: Create a Dedicated SonarQube User
+
+Purpose:
+SonarQube should not run as root for security reasons.
+
+sudo useradd sonarqube
+sudo passwd sonarqube
+
+🟢 Step 4: Add SonarQube User to Sudoers
+
+Purpose:
+Allows sonarqube user to execute administrative commands when required.
+
+Option 1: Add to Wheel Group (Recommended)
+sudo usermod -aG wheel sonarqube
+
+Option 2: Using visudo (Advanced)
+sudo visudo
+
+
+Add:
+
+sonarqube ALL=(ALL) NOPASSWD: ALL
+
+🟢 Step 5: Download SonarQube Community Edition
+
+Purpose:
+Downloads the official SonarQube binary package.
+
+wget https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-10.1.0.73491.zip
+
+🟢 Step 6: Move SonarQube to /opt Directory
+
+Purpose:
+/opt is the standard location for third-party applications.
+
+sudo mv sonarqube-10.1.0.73491.zip /opt/
+cd /opt
+
+🟢 Step 7: Install Unzip & Extract SonarQube
+
+Purpose:
+Extracts SonarQube binaries for execution.
+
+sudo yum install unzip -y
+sudo unzip sonarqube-10.1.0.73491.zip
+
+🟢 Step 8: Set Ownership to SonarQube User
+
+Purpose:
+Ensures SonarQube has permission to access its own files.
+
+sudo chown -R sonarqube:sonarqube sonarqube-10.1.0.73491
+
+🟢 Step 9: Switch to SonarQube User
+
+Purpose:
+Runs SonarQube using the dedicated non-root user.
+
+su - sonarqube
+
+🟢 Step 10: Configure System Limits (Very Important)
+
+Purpose:
+SonarQube requires higher file descriptors and virtual memory.
+
+Edit sysctl config
+sudo vi /etc/sysctl.conf
+
+
+Add:
+
+vm.max_map_count=262144
+fs.file-max=65536
+
+
+Apply changes:
+
+sudo sysctl -p
+
+🟢 Step 11: Configure User Limits
+
+Purpose:
+Prevents SonarQube startup failures related to open files.
+
+sudo vi /etc/security/limits.conf
+
+
+Add:
+
+sonarqube   -   nofile   65536
+sonarqube   -   nproc    4096
+
+🟢 Step 12: Start SonarQube Server
+
+Purpose:
+Starts the SonarQube application.
+
+cd /opt/sonarqube-10.1.0.73491/bin/linux-x86-64/
+./sonar.sh start
+
+🟢 Step 13: Check SonarQube Status
+
+Purpose:
+Verifies whether SonarQube started successfully.
+
+./sonar.sh status
+
+
+Expected output:
+
+SonarQube is running
+
+🟢 Step 14: Open Port 9000 in Security Group
+
+Purpose:
+Allows external access to SonarQube UI.
+
+Go to EC2 → Security Group
+
+Add Inbound Rule:
+
+Type: Custom TCP
+
+Port: 9000
+
+Source: Your IP / 0.0.0.0/0 (for testing)
+
+🟢 Step 15: Access SonarQube UI
+
+Purpose:
+Access the SonarQube dashboard from browser.
+
+http://<EC2-Public-IP>:9000
+
+🔐 Default Credentials
+Username: admin
+Password: admin
+
+
+⚠️ You will be asked to change the password on first login.
+
+✅ SonarQube Installation Completed Successfully 🎉
+
+You now have:
+
+Java 17 installed
+
+SonarQube running securely
+
+Ready for Jenkins / CI-CD integration
